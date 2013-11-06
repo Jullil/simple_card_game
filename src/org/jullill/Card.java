@@ -1,19 +1,19 @@
 package org.jullill;
 
-public class Card {
-    private String suite;
-    private String value;
+public class Card implements Comparable<Card>{
+    private CardSuit  suite;
+    private CardValue value;
 
-    public Card(String suit, String value) {
+    public Card(CardSuit suit, CardValue value) {
         this.suite = suit;
         this.value = value;
     }
 
-    public String getSuite() {
+    public CardSuit getSuite() {
         return suite;
     }
 
-    public String getValue() {
+    public CardValue getValue() {
         return value;
     }
 
@@ -21,7 +21,16 @@ public class Card {
         return value + " " + suite;
     }
 
-    public int compare(Card card) {
-        return 0;
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+    @Override
+    public int compareTo(Card card) {
+        if (card == null) {
+            return -1;
+        }
+        return value.ordinal() - card.value.ordinal();
     }
 }

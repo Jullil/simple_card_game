@@ -20,7 +20,15 @@ public class Player {
      *
      * @return Card
      */
-    public Card run() {
+     public Card go(List<Card> gameCardList) {
+        for (Card gameCard : gameCardList) {
+           for (Card card : cardList) {
+               if (card.compareTo(gameCard) == 0) {
+                   cardList.remove(card);
+                   return card;
+               }
+           }
+        }
         return cardList.remove(0);
     }
 
@@ -31,10 +39,10 @@ public class Player {
      *
      * @return Card
      */
-    public Card run(Card currentCard) {
+    public Card struggle(Card currentCard) {
         Card resultCard = null;
         for (Card card : cardList) {
-            if (currentCard.compare(card) == -1 && card.compare(resultCard) == -1) {
+            if (currentCard.getSuite() == card.getSuite() && currentCard.compareTo(card) < 0 && card.compareTo(resultCard) < 0) {
                 resultCard = card;
             }
         }
