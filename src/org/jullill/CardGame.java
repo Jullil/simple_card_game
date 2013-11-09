@@ -4,56 +4,135 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class CardGame {
-    private static final int MAX_HAND = 6;
+    private static final int MIN_PLAYER_CARD = 3;
 
+    private final GameContext gameContext = new GameContext();
     private final List<Player> playerList = new ArrayList<Player>();
-    private final Deck deck = new Deck();
     private final List<Card> gameCardList = new ArrayList<Card>();
+    private final Deck deck = new Deck();
 
-    private int currentPlayerKey;
+    private int beginPlayerKey = 0;
 
     public static void main(String[] args) {
         CardGame game = new CardGame();
-        game.setUpGame(5);
-        game.startPlaying();
+        game.setUpGame(3);
+        game.newRound();
     }
 
     private void setUpGame(int playerCount) {
-        deck.shuffle();
+        gameContext.trumpSuit = deck.shuffle();
+        gameContext.playerCount = playerCount;
+
+        System.out.println("Trump " + gameContext.trumpSuit + "+++++++++");
 
         for (int i = 0; i < playerCount; i++) {
-            final Player player = new Player(String.format("Player%d", i + 1));
-            System.out.println(player.getName());
+            final Player player = new Player(String.format("Player%d", i + 1), gameContext);
+            playerList.add(player);
+        }
 
-            for (int j = 0; j < MAX_HAND; j++) {
+        dealCards();
+
+        Player beginPlayer = null;
+        Card seniorTrumpCard = null;
+        for (Player player : playerList) {
+            final Card playerSeniorTrumpCard = player.getSeniorTrumpCard();
+            System.out.println("player " + player + " trump card " + playerSeniorTrumpCard + "+++++++++");
+            if (playerSeniorTrumpCard != null && playerSeniorTrumpCard.compareTo(seniorTrumpCard) > 0) {
+                seniorTrumpCard = playerSeniorTrumpCard;
+                beginPlayer = player;
+            }
+        }
+        System.out.println("Begin player " + beginPlayer + "+++++++++");
+        if (beginPlayer != null) {
+            beginPlayerKey = playerList.indexOf(beginPlayer);
+        }
+    }
+
+    private void newRound() {
+        resetPlayersState();
+
+        final int currentPlayerKey = (beginPlayerKey + 1) % playerList.size();
+        final Player currentPlayer = playerList.get(currentPlayerKey);
+
+        int i = 0;
+        int playerPassCount = 0;
+        while (currentPlayer.getCardCount() != 0 && playerPassCount < playerList.size() - 1) {
+            System.out.println("Count pass " + playerPassCount + "====================");
+            final int playerKey = (beginPlayerKey + i) % playerList.size();
+
+            i = (i + 1) % playerList.size();
+            if (i == 0) {
+                playerPassCount = 0;
+            }
+
+            if (playerKey == currentPlayerKey) {
+                continue;
+            }
+
+            final Player player = playerList.get(playerKey);
+            Card playerCard = player.go(gameCardList);
+            if (playerCard != null) {
+                gameCardList.add(playerCard);
+                System.out.println(player.getName() + " card = " + playerCard);
+                Card currentPlayerCard = currentPlayer.struggle(playerCard);
+                if (currentPlayerCard != null) {
+                    gameCardList.add(currentPlayerCard);
+                }
+                System.out.println("Current player " + currentPlayer.getName() + " card = " + currentPlayerCard);
+                System.out.println("--------------------------------");
+            } else {
+                playerPassCount++;
+            }
+        }
+        if (currentPlayer.isPass()) {
+            currentPlayer.addCard(gameCardList);
+        }
+        gameCardList.clear();
+
+        dealCards();
+
+        beginPlayerKey = (beginPlayerKey + 1) % playerList.size();
+
+        if (currentPlayerKey != 0) {
+            newRound();
+        }
+    }
+
+    /**
+     * Раздать карты
+     */
+    public void dealCards() {
+        for (int i = 0; i < playerList.size(); i++) {
+            Player player = playerList.get((beginPlayerKey + i) % playerList.size());
+
+            System.out.println(player.getName() + " (" + player.getCardCount() + "card) get new card -------------------");
+            for (int j = player.getCardCount(); j < MIN_PLAYER_CARD; j++) {
                 final Card card = deck.getCard();
                 player.addCard(card);
                 System.out.println(card.getName());
             }
-
-            playerList.add(player);
         }
     }
 
-    private void startPlaying() {
-        final Player currentPlayer = playerList.get(currentPlayerKey);
-        final int beginPlayerKey = currentPlayerKey == 0 ? playerList.size() - 1 : currentPlayerKey - 1;
+    /**
+     * Сбросить текущее стостояние всех игроков
+     */
+    public void resetPlayersState() {
+        for (Player player : playerList) {
+            player.resetState();
+        }
+    }
 
-        for (int i = 0; i < playerList.size(); i++) {
-            final int playerKey = (beginPlayerKey + i) % playerList.size();
+    public final class GameContext {
+        private CardSuit trumpSuit;
+        private int playerCount;
 
-            if (playerKey == currentPlayerKey) {
-               continue;
-            }
+        CardSuit getTrumpSuit() {
+            return trumpSuit;
+        }
 
-            System.out.println("Current player " + playerKey);
-            final Player player = playerList.get(playerKey);
-            Card payerCard = player.go(gameCardList);
-            gameCardList.add(payerCard);
-            System.out.println("Player card " + payerCard);
-            Card currentPlayerCard = currentPlayer.struggle(payerCard);
-            gameCardList.add(currentPlayerCard);
-            System.out.println("Current player card " + currentPlayerCard);
+        public int getPlayerCount() {
+            return playerCount;
         }
     }
 }

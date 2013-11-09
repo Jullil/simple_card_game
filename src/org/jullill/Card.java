@@ -29,7 +29,7 @@ public class Card implements Comparable<Card>{
     @Override
     public int compareTo(Card card) {
         if (card == null) {
-            return -1;
+            return 1;
         }
         return value.ordinal() - card.value.ordinal();
     }

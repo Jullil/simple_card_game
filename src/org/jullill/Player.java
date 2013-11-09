@@ -4,15 +4,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
-    private String name;
     private final List<Card> cardList = new ArrayList<Card>();
 
-    public Player(String name) {
+    private String name;
+    private boolean pass;
+    private CardGame.GameContext gameContext;
+
+    public Player(String name, CardGame.GameContext gameContext) {
         this.name = name;
+        this.gameContext = gameContext;
     }
 
     public void addCard(Card card) {
         cardList.add(card);
+    }
+
+    public void addCard(List<Card> cardList) {
+        this.cardList.addAll(cardList);
+        System.out.println("Current player take cards ==============");
+        System.out.println(cardList);
+    }
+
+    public int getCardCount() {
+        return cardList.size();
     }
 
     /**
@@ -21,6 +35,17 @@ public class Player {
      * @return Card
      */
      public Card go(List<Card> gameCardList) {
+        //Первый ход игрока
+        if (gameCardList.isEmpty()) {
+            Card minCard = cardList.get(0);
+            for (Card card : cardList) {
+                if (minCard.compareTo(card) > 0) {
+                    minCard = card;
+                }
+            }
+            cardList.remove(minCard);
+            return minCard;
+        }
         for (Card gameCard : gameCardList) {
            for (Card card : cardList) {
                if (card.compareTo(gameCard) == 0) {
@@ -29,7 +54,7 @@ public class Player {
                }
            }
         }
-        return cardList.remove(0);
+        return null;
     }
 
     /**
@@ -40,16 +65,60 @@ public class Player {
      * @return Card
      */
     public Card struggle(Card currentCard) {
+        if (pass || cardList.isEmpty()) {
+            return null;
+        }
         Card resultCard = null;
+        Card trumpCard = null;
+        CardSuit trumpSuit = gameContext.getTrumpSuit();
         for (Card card : cardList) {
-            if (currentCard.getSuite() == card.getSuite() && currentCard.compareTo(card) < 0 && card.compareTo(resultCard) < 0) {
+            if (currentCard.getSuite() == card.getSuite() && currentCard.compareTo(card) < 0 && (resultCard == null || card.compareTo(resultCard) < 0)) {
                 resultCard = card;
             }
+            if (currentCard.getSuite() != trumpSuit && card.getSuite() == trumpSuit && card.compareTo(trumpCard) < 0) {
+                trumpCard = card;
+            }
         }
+        resultCard = resultCard == null ? trumpCard : resultCard;
+        if (resultCard == null) {
+            pass = true;
+        }
+        cardList.remove(resultCard);
         return resultCard;
+    }
+
+    /**
+     * Получить старшую козырную карту
+     *
+     * @return Card
+     */
+    public Card getSeniorTrumpCard() {
+        Card seniorTrump = null;
+        for (Card card : cardList) {
+            if (card.getSuite() == gameContext.getTrumpSuit() && card.compareTo(seniorTrump) > 0) {
+                seniorTrump = card;
+            }
+        }
+        return seniorTrump;
+    }
+
+    /**
+     * Сбросить состояние игрока
+     */
+    public void resetState() {
+        pass = false;
     }
 
     public String getName() {
         return name;
+    }
+
+    public Boolean isPass() {
+        return pass;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

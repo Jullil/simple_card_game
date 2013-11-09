@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class Deck {
-    private final static String[] CARD_SUITS = {"Hearts", "Diamonds", "Clubs", "Peak"};
     private final List<Card> cardList = new ArrayList<Card>();
 
     public Deck() {
@@ -20,7 +19,15 @@ public class Deck {
         return cardList.remove(0);
     }
 
-    public void shuffle() {
+    /**
+     * Перемешивает колоду и выдает козырь
+     *
+     * @return CardSuit
+     */
+    public CardSuit shuffle() {
         Collections.shuffle(cardList);
+
+        int trumpSuiteKey = (int) Math.round(Math.random() * 10) % 4;
+        return CardSuit.values()[trumpSuiteKey];
     }
 }
