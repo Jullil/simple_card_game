@@ -35,6 +35,9 @@ public class Player {
      * @return Card
      */
      public Card go(List<Card> gameCardList) {
+        if (cardList.isEmpty()) {
+            return null;
+        }
         //Первый ход игрока
         if (gameCardList.isEmpty()) {
             Card minCard = cardList.get(0);

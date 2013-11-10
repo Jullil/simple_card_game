@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class CardGame {
-    private static final int MIN_PLAYER_CARD = 3;
+    private static final int MIN_PLAYER_CARD = 6;
 
     private final GameContext gameContext = new GameContext();
     private final List<Player> playerList = new ArrayList<Player>();
@@ -14,9 +14,12 @@ public final class CardGame {
     private int beginPlayerKey = 0;
 
     public static void main(String[] args) {
-        CardGame game = new CardGame();
-        game.setUpGame(3);
-        game.start();
+        for (int i = 0; i < 1000; i++) {
+            System.out.println("00000000000000000000000000000000000000000000000000000000000000000000000000000000000---------------------------" + i);
+            CardGame game = new CardGame();
+            game.setUpGame(3);
+            game.start();
+        }
     }
 
     private void setUpGame(int playerCount) {
@@ -106,10 +109,9 @@ public final class CardGame {
             currentPlayer.addCard(gameCardList);
         }
         gameCardList.clear();
-
         dealCards();
 
-        beginPlayerKey = (beginPlayerKey + 1) % playerList.size();
+        beginPlayerKey = currentPlayer.isPass() ? beginPlayerKey = (currentPlayerKey + 1) % playerList.size() : currentPlayerKey;
 
         return null;
     }
