@@ -19,6 +19,10 @@ public class Deck {
         return cardList.remove(0);
     }
 
+    public int getCardCount() {
+        return cardList.size();
+    }
+
     /**
      * Перемешивает колоду и выдает козырь
      *

@@ -75,7 +75,7 @@ public class Player {
             if (currentCard.getSuite() == card.getSuite() && currentCard.compareTo(card) < 0 && (resultCard == null || card.compareTo(resultCard) < 0)) {
                 resultCard = card;
             }
-            if (currentCard.getSuite() != trumpSuit && card.getSuite() == trumpSuit && card.compareTo(trumpCard) < 0) {
+            if (currentCard.getSuite() != trumpSuit && card.getSuite() == trumpSuit && (trumpCard == null || card.compareTo(trumpCard) < 0)) {
                 trumpCard = card;
             }
         }

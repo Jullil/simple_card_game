@@ -16,7 +16,7 @@ public final class CardGame {
     public static void main(String[] args) {
         CardGame game = new CardGame();
         game.setUpGame(3);
-        game.newRound();
+        game.start();
     }
 
     private void setUpGame(int playerCount) {
@@ -48,12 +48,22 @@ public final class CardGame {
         }
     }
 
-    private void newRound() {
+    public void start() {
+        Player winner = null;
+        while ( winner == null){
+            winner = newRound();
+        }
+
+        System.out.println("Player " + winner + " WIN!!!!!!!!!!!!!!!!!!!");
+    }
+
+    private Player newRound() {
         resetPlayersState();
 
         final int currentPlayerKey = (beginPlayerKey + 1) % playerList.size();
         final Player currentPlayer = playerList.get(currentPlayerKey);
 
+        int deckCardCount = deck.getCardCount();
         int i = 0;
         int playerPassCount = 0;
         while (currentPlayer.getCardCount() != 0 && playerPassCount < playerList.size() - 1) {
@@ -70,11 +80,19 @@ public final class CardGame {
             }
 
             final Player player = playerList.get(playerKey);
+
             Card playerCard = player.go(gameCardList);
+            if (deckCardCount == 0 && player.getCardCount() == 0) {
+                return player;
+            }
+
             if (playerCard != null) {
                 gameCardList.add(playerCard);
                 System.out.println(player.getName() + " card = " + playerCard);
                 Card currentPlayerCard = currentPlayer.struggle(playerCard);
+                if (deckCardCount == 0 && currentPlayer.getCardCount() == 0) {
+                    return currentPlayer;
+                }
                 if (currentPlayerCard != null) {
                     gameCardList.add(currentPlayerCard);
                 }
@@ -93,23 +111,25 @@ public final class CardGame {
 
         beginPlayerKey = (beginPlayerKey + 1) % playerList.size();
 
-        if (currentPlayerKey != 0) {
-            newRound();
-        }
+        return null;
     }
 
     /**
      * Раздать карты
      */
     public void dealCards() {
-        for (int i = 0; i < playerList.size(); i++) {
-            Player player = playerList.get((beginPlayerKey + i) % playerList.size());
+        if (deck.getCardCount() > 0) {
+            for (int i = 0; i < playerList.size(); i++) {
+                Player player = playerList.get((beginPlayerKey + i) % playerList.size());
 
-            System.out.println(player.getName() + " (" + player.getCardCount() + "card) get new card -------------------");
-            for (int j = player.getCardCount(); j < MIN_PLAYER_CARD; j++) {
-                final Card card = deck.getCard();
-                player.addCard(card);
-                System.out.println(card.getName());
+                for (int j = player.getCardCount(); j < MIN_PLAYER_CARD; j++) {
+                    if (deck.getCardCount() == 0) {
+                        return;
+                    }
+                    final Card card = deck.getCard();
+                    player.addCard(card);
+                    System.out.println(card.getName());
+                }
             }
         }
     }
