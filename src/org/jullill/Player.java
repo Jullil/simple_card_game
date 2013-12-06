@@ -91,18 +91,18 @@ public class Player {
     }
 
     /**
-     * Получить старшую козырную карту
+     * Получить младшую козырную карту
      *
      * @return Card
      */
-    public Card getSeniorTrumpCard() {
-        Card seniorTrump = null;
+    public Card getLowTrumpCard() {
+        Card lowTrump = null;
         for (Card card : cardList) {
-            if (card.getSuite() == gameContext.getTrumpSuit() && card.compareTo(seniorTrump) > 0) {
-                seniorTrump = card;
+            if (card.getSuite() == gameContext.getTrumpSuit() && (lowTrump == null || card.compareTo(lowTrump) < 0)) {
+                lowTrump = card;
             }
         }
-        return seniorTrump;
+        return lowTrump;
     }
 
     /**
