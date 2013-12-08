@@ -1,9 +1,13 @@
 package org.jullill;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class CardGame {
+public final class CardGame extends JFrame {
     private static final int MIN_PLAYER_CARD = 6;
     private static final int MAX_CHIPPED_CARD = 6;
 
@@ -16,24 +20,61 @@ public final class CardGame {
     private int beginPlayerKey = 0;
 
     public static void main(String[] args) {
-        //for (int i = 0; i < 1000; i++) {
-            //System.out.println("00000000000000000000000000000000000000000000000000000000000000000000000000000000000---------------------------" + i);
-            CardGame game = new CardGame();
-            game.setUpGame(6);
-            game.startGame();
-        //}
+        final CardGame game = new CardGame();
+
+        game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        game.setSize(1000, 600);
+
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        rightPanel.setBackground(Color.darkGray);
+        game.getContentPane().add(BorderLayout.EAST, rightPanel);
+
+        JButton startGameBtn = new JButton("Start new game");
+        startGameBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                game.setUpGame();
+                game.startGame();
+            }
+        });
+        rightPanel.add(startGameBtn);
+
+        JPanel playingField = new JPanel();
+        playingField.setLayout(new BorderLayout());
+        playingField.setBackground(new Color(45, 151, 71));
+        game.getContentPane().add(BorderLayout.CENTER, playingField);
+
+        JPanel topPlayer = new JPanel();
+        topPlayer.setBackground(Color.blue);
+        playingField.add(BorderLayout.NORTH, topPlayer);
+
+        JPanel bottomPlayer = new JPanel();
+        bottomPlayer.setBackground(Color.blue);
+        playingField.add(BorderLayout.SOUTH, bottomPlayer);
+
+        JPanel gamePanel = new JPanel();
+        gamePanel.setOpaque(false);
+        playingField.add(BorderLayout.CENTER, gamePanel);
+
+        game.setUpPlayers(2);
+
+        game.setVisible(true);
     }
 
-    private void setUpGame(int playerCount) {
-        gameContext.trumpSuit = deck.shuffle();
+    private void setUpPlayers(int playerCount) {
         gameContext.playerCount = playerCount;
-
-        System.out.println("Trump " + gameContext.trumpSuit + "+++++++++");
 
         for (int i = 0; i < playerCount; i++) {
             final Player player = new Player(String.format("Player%d", i + 1), gameContext);
             playerList.add(player);
         }
+    }
+
+    private void setUpGame() {
+        gameContext.trumpSuit = deck.shuffle();
+
+        System.out.println("Trump " + gameContext.trumpSuit + "+++++++++");
 
         dealCards();
 
